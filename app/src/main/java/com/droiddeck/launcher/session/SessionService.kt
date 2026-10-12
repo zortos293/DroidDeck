@@ -361,6 +361,13 @@ class SessionService : Service() {
 
         val pulse = startAudio(guest, sessionDir)
 
+        if (File(Environment.getExternalStorageDirectory(), "droiddeck-enable-mediacodec").isFile) {
+            val decoder = MediaCodecDecodeComponent(filesDir)
+            decoder.attach(this)
+            components.add(decoder)
+            guest.add("OPENNOW_MEDIACODEC_SOCKET=" + decoder.socketPath())
+        }
+
         guest.add("BL_WIDTH=" + size.first)
         guest.add("BL_HEIGHT=" + size.second)
         // Follow screen: the output is resized under gamescope when a foldable opens or closes,
@@ -1360,6 +1367,7 @@ class SessionService : Service() {
             "nativeSleep" to (nativeSleepToken != null),
         ))
         if (shouldSuspend) {
+            components.filterIsInstance<MediaCodecDecodeComponent>().forEach { it.setSuspended(true) }
             controller.freeze { success ->
                 mainHandler.post {
                     if (gen != sessionGen || !SessionState.running) return@post
@@ -1370,6 +1378,7 @@ class SessionService : Service() {
                         releaseLocks()
                         refreshNotification()
                     } else {
+                        components.filterIsInstance<MediaCodecDecodeComponent>().forEach { it.setSuspended(false) }
                         completeNativeSleep()
                         completeSteamSleep()
                         suspendAttemptFailed = true
@@ -1380,6 +1389,7 @@ class SessionService : Service() {
             }
         } else {
             acquireLocks()
+            components.filterIsInstance<MediaCodecDecodeComponent>().forEach { it.setSuspended(false) }
             controller.resume { success ->
                 mainHandler.post {
                     if (gen != sessionGen || !SessionState.running) return@post
@@ -1389,6 +1399,7 @@ class SessionService : Service() {
                         SessionEvents.transition(SessionEvents.resumePhase(), "session.resumed")
                         refreshNotification()
                     } else {
+                        components.filterIsInstance<MediaCodecDecodeComponent>().forEach { it.setSuspended(true) }
                         suspendAttemptFailed = true
                         Log.w(TAG, "could not confirm that the session resumed")
                     }
