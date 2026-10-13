@@ -71,7 +71,8 @@ javac -cp "$JUNIT_JAR:$HAMCREST_JAR" -d /tmp/mediacodec-tests \
   app/src/main/java/com/droiddeck/launcher/video/MediaCodecProtocol.java \
   app/src/main/java/com/droiddeck/launcher/video/ExchangeDeadline.java \
   app/src/main/java/com/droiddeck/launcher/video/Nv12Packer.java \
-  app/src/test/java/com/droiddeck/launcher/video/*.java
+  app/src/test/java/com/droiddeck/launcher/video/*.java \
+  tools/tests/java/com/droiddeck/launcher/video/MediaCodecFakeServer.java
 java -cp "/tmp/mediacodec-tests:$JUNIT_JAR:$HAMCREST_JAR" org.junit.runner.JUnitCore \
   com.droiddeck.launcher.video.MediaCodecProtocolTest \
   com.droiddeck.launcher.video.ExchangeDeadlineTest \
@@ -85,6 +86,6 @@ java -cp /tmp/mediacodec-tests \
   com.droiddeck.launcher.video.MediaCodecFakeServer /tmp/mediacodec-test.sock 3
 ```
 
-The optional last argument is the number of accepted connections before clean exit. It prints READY, RELEASED after each fake codec release, and STOPPED with active/max-active counts. Pixels are deterministic: Y byte i is `(timestamp+i)%256`, UV byte i is `(128+i)%256`. This fake never claims real hardware validation. Its JDK listener exists only in test sources.
+The optional last argument is the number of accepted connections before clean exit. It prints READY, RELEASED after each fake codec release, and STOPPED with active/max-active counts. Pixels are deterministic: Y byte i is `(timestamp+i)%256`, UV byte i is `(128+i)%256`. This fake never claims real hardware validation. Its JDK listener lives under `tools/tests/java`, outside the Android test source set because Android's boot classpath does not expose the JDK Unix-domain socket APIs.
 
 Before shipping a hardware claim, test the actual vendor Image output, row/crop handling, sustained decode/copy/upload timing, socket reachability through proot, stop/start races, stuck release, suspend/reconnect, and Qt fullscreen/overlay behavior on Odin2 Portal. This cloud implementation test cannot substitute for those checks.

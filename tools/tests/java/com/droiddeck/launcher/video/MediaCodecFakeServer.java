@@ -73,7 +73,7 @@ public final class MediaCodecFakeServer {
             System.out.flush();
             for (int connection = 0; connection < connections; connection++) {
                 try (SocketChannel client = listener.accept()) {
-                    new MediaCodecProtocol(factory).serve(Channels.newInputStream(client), Channels.newOutputStream(client), millis -> {});
+                    new MediaCodecProtocol(factory).serve(Channels.newInputStream(client), Channels.newOutputStream(client), deadline -> {});
                 } catch (java.io.IOException failure) {
                     System.err.println(failure.getMessage());
                 }
