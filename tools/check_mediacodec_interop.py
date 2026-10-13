@@ -22,6 +22,7 @@ RESPONSES = {101, 102, 103, 104, 199}
 MAX_PAYLOAD = 2 * 2560 * 1440 * 3 // 2 + 64 * 1024 + 16 * 1024 * 1024
 VIDEO_SRC = Path("app/src/main/java/com/droiddeck/launcher/video")
 VIDEO_TEST = Path("app/src/test/java/com/droiddeck/launcher/video")
+VIDEO_HOST = Path("tools/tests/java/com/droiddeck/launcher/video")
 PACKAGE = "com.droiddeck.launcher.video"
 SERVER_CLASS = f"{PACKAGE}.MediaCodecFakeServer"
 RUST_PACKAGE = "opennow-streamer-platform-linux"
@@ -270,7 +271,7 @@ def tail(text, lines=60):
 
 def discover_sources(droiddeck, android_jar):
     sources, junit_classes = [], []
-    for directory in (VIDEO_SRC, VIDEO_TEST):
+    for directory in (VIDEO_SRC, VIDEO_TEST, VIDEO_HOST):
         root = droiddeck / directory
         if not root.is_dir():
             raise CheckFailed(f"missing source directory: {root}")
